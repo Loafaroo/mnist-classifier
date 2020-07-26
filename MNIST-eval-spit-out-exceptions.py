@@ -1,9 +1,10 @@
 import matplotlib.pyplot as plt
 import tensorflow as tf
 import numpy as np
-
 import struct
 import re
+import os
+
 
 def retrieve_data(filename):
     with open(filename, 'rb') as f:
@@ -27,7 +28,6 @@ def retrieve_data(filename):
     return data
 
 new_model = tf.keras.models.load_model('MNIST-model.h5')
-image_index = np.random.randint(10000)
 
 file_images_test = 't10k-images.idx3-ubyte'
 file_labels_test = 't10k-labels.idx1-ubyte'
@@ -41,9 +41,20 @@ images_test = images_test.astype('float32')
 
 images_test /= 255
 
+number_of_images = 10000
 
-plt.imshow(images_test[image_index].reshape(28, 28),cmap='Greys')
-pred = new_model.predict(images_test[image_index].reshape(1, 28, 28, 1))
-print(pred)
-print(pred.argmax())
-plt.show()
+cwd = os.getcwd()
+
+print(cwd)
+
+for image_index in range(number_of_images):
+    pred = new_model.predict(images_test[image_index].reshape(1, 28, 28, 1))
+    predicted_label = pred.argmax()
+    actual_label = labels_test[image_index][0][0]
+    
+    if not (predicted_label == actual_label ):
+        
+        fname = cwd + f"\\exceptions\\{image_index}-{predicted_label}-{actual_label}.png"
+        print(f"predicted: {predicted_label} | actual: {actual_label} | index: {image_index}")
+        plt.imsave(fname, images_test[image_index].reshape(28, 28), cmap="gray")
+
